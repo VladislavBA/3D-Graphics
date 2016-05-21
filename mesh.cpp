@@ -9,7 +9,7 @@ mesh::mesh ()
   nodes_ = 0;
 }
 
-mesh::mesh (double width, double hight, double cut_hight, double cut_width, int width_nodes_count, int hight_nodes_count, double init_point)
+mesh::mesh (double width, double hight, double cut_hight, double cut_width, int width_nodes_count, int hight_nodes_count, QPointF init_point)
 {
   width_ = width;
   hight_ = hight;
@@ -91,12 +91,16 @@ int mesh::configurate_mesh (int width_point, int hight_point)
       is_resize_mem = true;
       delete [] nodes_;
     }
+  if (is_resize_mem == false)
+    return -1;
   width_nodes_count_ = width_point;
   hight_nodes_count_ = hight_point;
 
   nodes_count_ = configurate_nodes ();
 
   nodes_ = new QPointF [nodes_count_];
+
+  return 0;
 }
 
 void mesh::set_nodes_values ()
@@ -104,6 +108,22 @@ void mesh::set_nodes_values ()
   const double step_value_x = width_ / width_nodes_count_;
   const double step_value_y = hight_ / hight_nodes_count_;
 
-  for (int i = 0; i < )
+  // set rectangular upper part
+  for (int i = 0; i <= boundary_row_; i++)
+    {
+      for (int j = 0; j < boundary_colomn_; j++)
+        {
+          nodes_[i * boundary_colomn_ + j].setX (initial_point_.x () + j * step_value_x);
+          nodes_[i * boundary_colomn_ + j].setY (initial_point_.y () - i * step_value_y);
+        }
+    }
+  for (int i = boundary_row_ + 1; i < hight_nodes_count_; i++)
+    {
+      for (int j = 0; j < width_nodes_count_; j++)
+        {
+          nodes_[i * width_nodes_count_ + j].setX (initial_point_.x () + j * step_value_x);
+          nodes_[i * width_nodes_count_ + j].setY (initial_point_.y () - i * step_value_y);
+        }
+    }
 }
 

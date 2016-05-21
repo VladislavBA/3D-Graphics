@@ -7,7 +7,7 @@ class mesh
 {
 
 private:
-  double initial_point_;
+  QPointF initial_point_;
   //  _____________
   //  |           |
   //  |           |
@@ -23,7 +23,7 @@ private:
 public:
   mesh ();
   mesh (double width, double hight, double cut_hight, double cut_width,
-        int width_nodes_count, int hight_nodes_count, double init_point = 0);
+        int width_nodes_count, int hight_nodes_count, QPointF init_point);
   ~mesh ();
   int configurate_nodes ();
   QPointF *get_nodes ();

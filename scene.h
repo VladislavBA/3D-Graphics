@@ -6,13 +6,13 @@
 class Scene3D : public QGLWidget
 {
 private:
-  GLfloat xRot;
-  GLfloat yRot;
-  GLfloat zRot;
-  GLfloat zTra;
-  GLfloat nSca;
+  GLfloat x_rotate_;
+  GLfloat y_rotate_;
+  GLfloat z_rotate_;
+  GLfloat z_translate_;
+  GLfloat zoom_scalar;
 
-  QPoint ptrMousePosition;
+  QPoint mouse_ptr_pos;
 
   void scale_plus();
   void scale_minus();

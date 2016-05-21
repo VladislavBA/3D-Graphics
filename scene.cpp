@@ -10,7 +10,7 @@ GLubyte IndexArray[20][3];
 
 Scene3D::Scene3D (QWidget* parent) : QGLWidget(parent)
 {
-   xRot=-45; yRot=0; zRot=0; zTra=0; nSca=1;
+   x_rotate_=-95; y_rotate_=5; z_rotate_=-120; z_translate_=0; zoom_scalar=1;
 }
 
 void Scene3D::initializeGL ()
@@ -50,11 +50,11 @@ void Scene3D::paintGL()
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
 
-   glScalef(nSca, nSca, nSca);
-   glTranslatef(0.0f, zTra, 0.0f);
-   glRotatef(xRot, 1.0f, 0.0f, 0.0f);
-   glRotatef(yRot, 0.0f, 1.0f, 0.0f);
-   glRotatef(zRot, 0.0f, 0.0f, 1.0f);
+   glScalef(zoom_scalar, zoom_scalar, zoom_scalar);
+   glTranslatef(0.0f, z_translate_, 0.0f);
+   glRotatef(x_rotate_, 1.0f, 0.0f, 0.0f);
+   glRotatef(y_rotate_, 0.0f, 1.0f, 0.0f);
+   glRotatef(z_rotate_, 0.0f, 0.0f, 1.0f);
 
    drawAxis ();
    drawFigure ();
@@ -62,7 +62,7 @@ void Scene3D::paintGL()
 
 void Scene3D::mousePressEvent(QMouseEvent* pe)
 {
-   ptrMousePosition = pe->pos();
+   mouse_ptr_pos = pe->pos();
 }
 
 void Scene3D::mouseReleaseEvent(QMouseEvent* /*pe*/)
@@ -72,10 +72,10 @@ void Scene3D::mouseReleaseEvent(QMouseEvent* /*pe*/)
 
 void Scene3D::mouseMoveEvent(QMouseEvent* pe)
 {
-   xRot += 180/nSca*(GLfloat)(pe->y()-ptrMousePosition.y())/height();
-   zRot += 180/nSca*(GLfloat)(pe->x()-ptrMousePosition.x())/width();
+   x_rotate_ += 180/zoom_scalar*(GLfloat)(pe->y()-mouse_ptr_pos.y())/height();
+   z_rotate_ += 180/zoom_scalar*(GLfloat)(pe->x()-mouse_ptr_pos.x())/width();
 
-   ptrMousePosition = pe->pos();
+   mouse_ptr_pos = pe->pos();
 
    updateGL();
 }
@@ -141,66 +141,67 @@ void Scene3D::keyPressEvent(QKeyEvent* pe)
 
 void Scene3D::scale_plus()
 {
-   nSca = nSca*1.1;
+   zoom_scalar = zoom_scalar*1.1;
 }
 
 void Scene3D::scale_minus()
 {
-   nSca = nSca/1.1;
+   zoom_scalar = zoom_scalar/1.1;
 }
 
 void Scene3D::rotate_up()
 {
-   xRot += 1.0;
+   x_rotate_ += 1.0;
 }
 
 void Scene3D::rotate_down()
 {
-   xRot -= 1.0;
+   x_rotate_ -= 1.0;
 }
 
 void Scene3D::rotate_left()
 {
-   zRot += 1.0;
+   z_rotate_ += 1.0;
 }
 
 void Scene3D::rotate_right()
 {
-   zRot -= 1.0;
+   z_rotate_ -= 1.0;
 }
 
 void Scene3D::translate_down()
 {
-   zTra -= 0.05;
+   z_translate_ -= 0.05;
 }
 
 void Scene3D::translate_up()
 {
-   zTra += 0.05;
+   z_translate_ += 0.05;
 }
 
 void Scene3D::defaultScene()
 {
-   xRot=-90; yRot=0; zRot=0; zTra=0; nSca=1;
+   x_rotate_=-90; y_rotate_=0; z_rotate_=0; z_translate_=0; zoom_scalar=1;
 }
 
 void Scene3D::drawAxis()
 {
    glLineWidth(3.0f);
 
-   glColor4f(1.00f, 0.00f, 0.00f, 1.0f);
+   // Axis X
+   glColor4f(1.00f, 0.00f, 0.00f, 1.0f); //< red
    glBegin(GL_LINES);
       glVertex3f( 1.0f,  0.0f,  0.0f);
       glVertex3f(-1.0f,  0.0f,  0.0f);
    glEnd();
-
-   QColor halfGreen(0, 128, 0, 255);
+   // Axis Y
+   QColor halfGreen(0, 128, 0, 255); //< green
    qglColor(halfGreen);
    glBegin(GL_LINES);
       glVertex3f( 0.0f,  1.0f,  0.0f);
       glVertex3f( 0.0f, -1.0f,  0.0f);
-
-      glColor4f(0.00f, 0.00f, 1.00f, 1.0f);
+    // Axis Z
+      glColor4f(0.00f, 0.00f, 1.00f, 1.0f); //< blue
       glVertex3f( 0.0f,  0.0f,  1.0f);
       glVertex3f( 0.0f,  0.0f, -1.0f);
    glEnd();
@@ -213,22 +214,22 @@ static double function(const double x, const double y)
 
 void Scene3D::getVertexArray ()
 {
-  double a = -1;
-  double b = 1;
-  double c = -1;
-  double d = -1;
+//  double a = -1;
+//  double b = 1;
+//  double c = -1;
+//  double d = -1;
   int n = 3;
   int m = 4;
-  double eps_ab = (b - a) / m;
-  double eps_cd = (d - c) / n;
+//  double eps_ab = (b - a) / m;
+//  double eps_cd = (d - c) / n;
 
   for (int i = 0; i < m; i++)
     {
       for (int j = 0; j < n; j++)
         {
-          VertexArray[i * n + j][0] = a + eps_ab * i;
-          VertexArray[i * n + j][1] = c + eps_cd * j;
-          VertexArray[i * n + j][2] = function (a + eps_ab * i, c + eps_cd * j);
+          VertexArray[i * n + j][0] = i;
+          VertexArray[i * n + j][1] = j;
+          VertexArray[i * n + j][2] = function (i, j);
         }
     }
 
