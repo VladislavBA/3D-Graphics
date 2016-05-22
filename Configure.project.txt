@@ -1,0 +1,7 @@
+Set number of nodes on width N
+Set number of nodes on hight M
+Set boundary row - the last row in mesh
+Set boundary colomn - the last colomn in mesh
+Size mesh [A, B] - width
+Size mesh [C, D] - hight
+Build sort row --> pattern indexes left to right and up to down
