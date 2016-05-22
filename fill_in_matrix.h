@@ -1,6 +1,8 @@
 #ifndef FILL_IN_MATRIX_H
 #define FILL_IN_MATRIX_H
 
+
+
 class fill_in_matrix
 {
 
@@ -23,7 +25,8 @@ public:
     int fill_indexes (const int m, const int n, int *indexes);
     void fillin_msr_matrix (double *msr_matrix, const int *indexes, const int m, const int n, const int nz, const int my_rank, const int total_thread);
     void set_msr_matrix ();
-    void fillin_rhs (double *rhs, int n);
+    void fillin_rhs (double *rhs, int n, const int my_rank, const int total_thread);
+    double rhs_element (const int global_num);
 };
 
 #endif // FILL_IN_MATRIX_H

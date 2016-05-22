@@ -169,7 +169,48 @@ void fill_in_matrix::fillin_msr_matrix (double *msr_matrix, const int *indexes, 
     {
       msr_matrix[begin + j] = I1;
     }
+    }
+}
+
+void fill_in_matrix::fillin_rhs (double *rhs, int n, const int my_rank, const int total_thread)
+{
+  int i1 = my_rank * N;
+  i1 /= total_thread;
+  int i2 = (my_rank + 1) * N;
+  i2 = i2 / total_thread - 1;
+
+  for (int i = i1; i <= i2; i++)
+    {
+      rhs[i] = rhs_element (i);
+    }
+
+  synchronize(total_thread);
+}
+
+double fill_in_matrix::rhs_element(const int global_num)
+{
+  int i = 0;
+  int j = 0;
+
+  get_coord_mesh (global_num, i, j);
+
+  if ((i > 0 && j > 0 && i < m && j < n && (i > row_cut && j < col_cut || i <= row_cut))) // FULL SUPP
+  {
+    pattern_1 (index, i, j, m, n);
+    return 6;
   }
+  if ((i == 0 && j == 0) || (i == row_cut && j == n) || (i == m && j == col_cut)) // LEFT UP || RIGHT_DOWN_CUT || DOWN_RIGHT_CUT
+  {
+    pattern_2 (index, i, j, m, n);
+    return 2;
+  }
+  if ((i == m && j == 0) || (i == 0 && j == n)) // LEFT_DOWN || RIGHT_UP
+  {
+    pattern_3 (index, i, j, m, n);
+    return 3;
+  }
+  pattern_4 (index, i, j, m, n);
+  return 4;
 }
 
 
