@@ -11,7 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = 3D-Graphics
 TEMPLATE = app
-CONFIG += c++11
+
+QMAKE_CXXFLAGS += -std=c++0x
 
 
 SOURCES += main.cpp\
@@ -23,7 +24,8 @@ SOURCES += main.cpp\
     multithread.cpp \
     scene.cpp \
     thread_source.cpp \
-    matrix_args.cpp
+    matrix_args.cpp \
+    fill_in_matrix.cpp
 
 HEADERS  += window.h \
     io.h \
@@ -34,4 +36,8 @@ HEADERS  += window.h \
     matrix_args.h \
     scene.h \
     thread_source.h \
-    matrix_args.h
+    matrix_args.h \
+    fill_in_matrix.h
+
+OTHER_FILES += \
+    Configure.project.txt
