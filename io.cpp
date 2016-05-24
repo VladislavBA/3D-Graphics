@@ -53,8 +53,27 @@ static int get_position_curr_row (const int row_num, const int width_band, const
 {
   if (n < 0 || width_band < 1 || row_num >= n || row_num <= 0)
     return 0;
+  int boundary_row = width_band / 2;
+  if (width_band / 2 - row_num > 0)
+    boundary_row = row_num;
+  if (width_band / 2 - (n - row_num - 1) > 0)
+    boundary_row = n - row_num - 1;
 
-  return (row_num - 1) * (width_band - 1) + (width_band - 1) / 2;
+  return width_band / 2 + boundary_row;
+}
+
+static int get_colomn_num (const int row_num, const int msr_num, const int width_band)
+{
+  int begin_nz_pos = 0;
+
+  if (width_band / 2 - row_num <= 0)
+    {
+      begin_nz_pos = row_num - width_band / 2;
+    }
+  if (begin_nz_pos + msr_num >= row_num)
+    return begin_nz_pos + msr_num + 1;
+  else
+    return begin_nz_pos + msr_num;
 }
 
 int create_msr_band_matrix (double *msr_matrix, int *indexes, const int width,
@@ -104,15 +123,7 @@ int create_msr_band_matrix (double *msr_matrix, int *indexes, const int width,
         {
           // SEGF
           msr_matrix [pos + j] = -1;
-          if (i == 0)
-            {
-              indexes [pos + j] = i + j + 1;
-              continue;
-            }
-          if ((i - (width - 1) / 2 + j) < i)
-            indexes [pos + j] = i - (width - 1) / 2 + j;
-          else
-            indexes [pos + j] = i - (width - 1) / 2 + j + 1;
+          indexes [pos + j] = get_colomn_num (i, j, width);
         }
     }
 

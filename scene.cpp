@@ -1,5 +1,8 @@
 #include <QtGui>
 #include <math.h>
+
+#include "mesh.h"
+
 #include "scene.h"
 
 const static float pi=3.141593, k=pi/180;
@@ -8,47 +11,48 @@ GLfloat VertexArray[12][3];
 GLfloat ColorArray[12][3];
 GLubyte IndexArray[20][3];
 
-Scene3D::Scene3D (QWidget* parent) : QGLWidget(parent)
+Scene3D::Scene3D (QWidget* parent) : QGLWidget (parent)
 {
-   x_rotate_=-95; y_rotate_=5; z_rotate_=-120; z_translate_=0; zoom_scalar=1;
+   x_rotate_ = -95; y_rotate_ = 5; z_rotate_ = -120;
+   z_translate_ = 0; zoom_scalar = 1;
 }
 
 void Scene3D::initializeGL ()
 {
-   qglClearColor(Qt::white);
-   glEnable(GL_DEPTH_TEST);
-   glShadeModel(GL_FLAT);
-   glEnable(GL_CULL_FACE);
+   qglClearColor (Qt::white); // background color
+   glEnable (GL_DEPTH_TEST); //
+   glShadeModel (GL_FLAT);
+   glEnable (GL_CULL_FACE); // set config for special paint
 
-   getVertexArray();
-   getColorArray();
-   getIndexArray();
+   getVertexArray ();
+   getColorArray ();
+   getIndexArray ();
 
-   glEnableClientState(GL_VERTEX_ARRAY);
-   glEnableClientState(GL_COLOR_ARRAY);
+   glEnableClientState (GL_VERTEX_ARRAY);
+   glEnableClientState (GL_COLOR_ARRAY);
 }
 
-void Scene3D::resizeGL(int nWidth, int nHeight)
+void Scene3D::resizeGL (int nWidth, int nHeight)
 {
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
+   glMatrixMode (GL_PROJECTION);
+   glLoadIdentity ();
 
-   GLfloat ratio=(GLfloat)nHeight/(GLfloat)nWidth;
+   GLfloat ratio = (GLfloat)nHeight / (GLfloat)nWidth;
 
-   if (nWidth>=nHeight)
-      glOrtho(-1.0/ratio, 1.0/ratio, -1.0, 1.0, -10.0, 1.0);
+   if (nWidth >= nHeight)
+      glOrtho (-1.0 / ratio, 1.0 / ratio, -1.0, 1.0, -10.0, 1.0);
    else
-      glOrtho(-1.0, 1.0, -1.0*ratio, 1.0*ratio, -10.0, 1.0);
+      glOrtho (-1.0, 1.0, -1.0 * ratio, 1.0 * ratio, -10.0, 1.0);
 
-   glViewport(0, 0, (GLint)nWidth, (GLint)nHeight);
+   glViewport (0, 0, (GLint)nWidth, (GLint)nHeight);
 }
 
-void Scene3D::paintGL()
+void Scene3D::paintGL ()
 {
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   glMatrixMode(GL_MODELVIEW);
-   glLoadIdentity();
+   glMatrixMode (GL_MODELVIEW);
+   glLoadIdentity ();
 
    glScalef(zoom_scalar, zoom_scalar, zoom_scalar);
    glTranslatef(0.0f, z_translate_, 0.0f);
@@ -60,36 +64,40 @@ void Scene3D::paintGL()
    drawFigure ();
 }
 
-void Scene3D::mousePressEvent(QMouseEvent* pe)
+void Scene3D::mousePressEvent (QMouseEvent* pe)
 {
-   mouse_ptr_pos = pe->pos();
+   mouse_ptr_pos = pe->pos ();
 }
 
-void Scene3D::mouseReleaseEvent(QMouseEvent* /*pe*/)
+void Scene3D::mouseReleaseEvent (QMouseEvent* /*pe*/)
 {
 
 }
 
 void Scene3D::mouseMoveEvent(QMouseEvent* pe)
 {
-   x_rotate_ += 180/zoom_scalar*(GLfloat)(pe->y()-mouse_ptr_pos.y())/height();
-   z_rotate_ += 180/zoom_scalar*(GLfloat)(pe->x()-mouse_ptr_pos.x())/width();
+   x_rotate_ += 180 / zoom_scalar * (GLfloat)(pe->y ()-mouse_ptr_pos.y ()) / height ();
+   z_rotate_ += 180 / zoom_scalar * (GLfloat)(pe->x ()-mouse_ptr_pos.x ()) / width ();
 
-   mouse_ptr_pos = pe->pos();
+   mouse_ptr_pos = pe->pos ();
 
-   updateGL();
+   updateGL ();
 }
 
-void Scene3D::wheelEvent(QWheelEvent* pe)
+void Scene3D::wheelEvent (QWheelEvent* pe)
 {
-   if ((pe->delta())>0) scale_plus(); else if ((pe->delta())<0) scale_minus();
+   if ((pe->delta ()) > 0)
+     scale_plus ();
+   else
+     if ((pe->delta ()) < 0)
+       scale_minus ();
 
-   updateGL();
+   updateGL ();
 }
 
-void Scene3D::keyPressEvent(QKeyEvent* pe)
+void Scene3D::keyPressEvent (QKeyEvent* pe)
 {
-   switch (pe->key())
+   switch (pe->key ())
    {
       case Qt::Key_Plus:
          scale_plus();
@@ -120,116 +128,116 @@ void Scene3D::keyPressEvent(QKeyEvent* pe)
       break;
 
       case Qt::Key_Z:
-         translate_down();
+         translate_down ();
       break;
 
       case Qt::Key_X:
-         translate_up();
+         translate_up ();
       break;
 
       case Qt::Key_Space:
-         defaultScene();
+         defaultScene ();
       break;
 
       case Qt::Key_Escape:
-         this->close();
+         this->close ();
       break;
    }
 
-   updateGL();
+   updateGL ();
 }
 
-void Scene3D::scale_plus()
+void Scene3D::scale_plus ()
 {
-   zoom_scalar = zoom_scalar*1.1;
+   zoom_scalar = zoom_scalar * 1.1;
 }
 
-void Scene3D::scale_minus()
+void Scene3D::scale_minus ()
 {
-   zoom_scalar = zoom_scalar/1.1;
+   zoom_scalar = zoom_scalar / 1.1;
 }
 
-void Scene3D::rotate_up()
+void Scene3D::rotate_up ()
 {
    x_rotate_ += 1.0;
 }
 
-void Scene3D::rotate_down()
+void Scene3D::rotate_down ()
 {
    x_rotate_ -= 1.0;
 }
 
-void Scene3D::rotate_left()
+void Scene3D::rotate_left ()
 {
    z_rotate_ += 1.0;
 }
 
-void Scene3D::rotate_right()
+void Scene3D::rotate_right ()
 {
    z_rotate_ -= 1.0;
 }
 
-void Scene3D::translate_down()
+void Scene3D::translate_down ()
 {
    z_translate_ -= 0.05;
 }
 
-void Scene3D::translate_up()
+void Scene3D::translate_up ()
 {
    z_translate_ += 0.05;
 }
 
-void Scene3D::defaultScene()
+void Scene3D::defaultScene ()
 {
-   x_rotate_=-90; y_rotate_=0; z_rotate_=0; z_translate_=0; zoom_scalar=1;
+   x_rotate_ = -95; y_rotate_ = 5; z_rotate_ = -120; z_translate_=0; zoom_scalar=1;
 }
 
-void Scene3D::drawAxis()
+void Scene3D::drawAxis ()
 {
-   glLineWidth(3.0f);
+   glLineWidth (3.0f);
 
    // Axis X
-   glColor4f(1.00f, 0.00f, 0.00f, 1.0f); //< red
-   glBegin(GL_LINES);
-      glVertex3f( 1.0f,  0.0f,  0.0f);
-      glVertex3f(-1.0f,  0.0f,  0.0f);
-   glEnd();
+   glColor4f (1.00f, 0.00f, 0.00f, 1.0f); //< red
+   glBegin (GL_LINES);
+      glVertex3f ( 1.0f,  0.0f,  0.0f);
+      glVertex3f (-1.0f,  0.0f,  0.0f);
+   glEnd ();
    // Axis Y
-   QColor halfGreen(0, 128, 0, 255); //< green
-   qglColor(halfGreen);
-   glBegin(GL_LINES);
-      glVertex3f( 0.0f,  1.0f,  0.0f);
-      glVertex3f( 0.0f, -1.0f,  0.0f);
+   QColor halfGreen (0, 128, 0, 255); //< green
+   qglColor (halfGreen);
+   glBegin (GL_LINES);
+      glVertex3f ( 0.0f,  1.0f,  0.0f);
+      glVertex3f ( 0.0f, -1.0f,  0.0f);
     // Axis Z
-      glColor4f(0.00f, 0.00f, 1.00f, 1.0f); //< blue
-      glVertex3f( 0.0f,  0.0f,  1.0f);
-      glVertex3f( 0.0f,  0.0f, -1.0f);
+      glColor4f (0.00f, 0.00f, 1.00f, 1.0f); //< blue
+      glVertex3f ( 0.0f,  0.0f,  1.0f);
+      glVertex3f ( 0.0f,  0.0f, -1.0f);
    glEnd();
 }
 
-static double function(const double x, const double y)
+static double function (const double x, const double y)
 {
-  return x * x - y * y;
+  return x + y;
 }
 
 void Scene3D::getVertexArray ()
 {
-//  double a = -1;
-//  double b = 1;
-//  double c = -1;
-//  double d = -1;
-  int n = 3;
+  double a = -1;
+  double b = 1;
+  double c = -1;
+  double d = -1;
+  int n = 5;
   int m = 4;
-//  double eps_ab = (b - a) / m;
-//  double eps_cd = (d - c) / n;
+  double eps_ab = (b - a) / m;
+  double eps_cd = (d - c) / n;
 
   for (int i = 0; i < m; i++)
     {
       for (int j = 0; j < n; j++)
         {
-          VertexArray[i * n + j][0] = i;
-          VertexArray[i * n + j][1] = j;
-          VertexArray[i * n + j][2] = function (i, j);
+          VertexArray[i * n + j][0] = i * eps_ab;
+          VertexArray[i * n + j][1] = j * eps_cd;
+          VertexArray[i * n + j][2] = function (i * eps_ab, j * eps_cd);
         }
     }
 
@@ -291,7 +299,7 @@ void Scene3D::getVertexArray ()
    VertexArray[11][2]=-R;
 }
 */
-void Scene3D::getColorArray()
+void Scene3D::getColorArray ()
 {
    for (int i=0; i<12; i++)
    {
@@ -304,30 +312,30 @@ void Scene3D::getColorArray()
 void Scene3D::getIndexArray()
 {
    IndexArray[0][0]=0;
-   IndexArray[0][1]=2;
+   IndexArray[0][1]=6;
    IndexArray[0][2]=1;
 
-   IndexArray[1][0]=0;
-   IndexArray[1][1]=3;
-   IndexArray[1][2]=2;
+   IndexArray[1][0]=1;
+   IndexArray[1][1]=6;
+   IndexArray[1][2]=7;
 
-   IndexArray[2][0]=0;
-   IndexArray[2][1]=4;
-   IndexArray[2][2]=3;
+   IndexArray[2][0]=1;
+   IndexArray[2][1]=7;
+   IndexArray[2][2]=2;
 
-   IndexArray[3][0]=0;
-   IndexArray[3][1]=5;
-   IndexArray[3][2]=4;
+   IndexArray[3][0]=2;
+   IndexArray[3][1]=7;
+   IndexArray[3][2]=8;
 
-   IndexArray[4][0]=0;
-   IndexArray[4][1]=1;
-   IndexArray[4][2]=5;
+   IndexArray[4][0]=2;
+   IndexArray[4][1]=8;
+   IndexArray[4][2]=3;
 
-   IndexArray[5][0]=6;
-   IndexArray[5][1]=1;
-   IndexArray[5][2]=7;
+   IndexArray[5][0]=3;
+   IndexArray[5][1]=8;
+   IndexArray[5][2]=9;
 
-   IndexArray[6][0]=7;
+   IndexArray[6][0]=3;
    IndexArray[6][1]=1;
    IndexArray[6][2]=2;
 

@@ -1,6 +1,6 @@
 #include "fill_in_matrix.h"
 
-fill_in_matrix::pattern_1 (int *index, const int i, const int j, const int m, const int n)
+void fill_in_matrix::pattern_1 (int *index, const int i, const int j, const int m, const int n)
 {
     index[0] = get_l (i - 1, j, m, n);
     index[1] = get_l (i - 1, j + 1, m, n);
@@ -10,7 +10,7 @@ fill_in_matrix::pattern_1 (int *index, const int i, const int j, const int m, co
     index[5] = get_l (i + 1, j, m, n);
 }
 
-fill_in_matrix::pattern_2 (int *index, const int i, const int j, const int m, const int n)
+void fill_in_matrix::pattern_2 (int *index, const int i, const int j, const int m, const int n)
 {
     if (i == 0)
     {
@@ -24,7 +24,7 @@ fill_in_matrix::pattern_2 (int *index, const int i, const int j, const int m, co
     }
 }
 
-fill_in_matrix::pattern_3 (int *index, const int i, const int j, const int m, const int n)
+void fill_in_matrix::pattern_3 (int *index, const int i, const int j, const int m, const int n)
 {
     if (i == 0)
     {
@@ -40,7 +40,7 @@ fill_in_matrix::pattern_3 (int *index, const int i, const int j, const int m, co
     }
 }
 
-fill_in_matrix::pattern_4 (int *index, const int i, const int j, const int m, const int n)
+void fill_in_matrix::pattern_4 (int *index, const int i, const int j, const int m, const int n)
 {
     if (i == 0)
     {

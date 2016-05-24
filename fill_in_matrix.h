@@ -11,10 +11,10 @@ private:
     int cut_col_;
     double J_;
 
-    pattern_1 (int* index, const int i, const int j, const int m, const int n);
-    pattern_2 (int* index, const int i, const int j, const int m, const int n);
-    pattern_3 (int* index, const int i, const int j, const int m, const int n);
-    pattern_4 (int* index, const int i, const int j, const int m, const int n);
+    void pattern_1 (int* index, const int i, const int j, const int m, const int n);
+    void pattern_2 (int* index, const int i, const int j, const int m, const int n);
+    void pattern_3 (int* index, const int i, const int j, const int m, const int n);
+    void pattern_4 (int* index, const int i, const int j, const int m, const int n);
 
 public:
     fill_in_matrix (const int cut_row, const int cut_col, const double jacobian);
