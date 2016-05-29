@@ -23,9 +23,12 @@ private:
 
 public:
   mesh ();
-  mesh (double width, double hight, double cut_hight, double cut_width,
-        int width_nodes_count, int hight_nodes_count, QPointF init_point);
   ~mesh ();
+
+  int parse_arguments_cmd_line (const int argc, char* argv[]);
+  void set_data_mesh (double width, double hight, double cut_hight, double cut_width,
+                      int width_nodes_count, int hight_nodes_count, QPointF init_point);
+
   int configurate_nodes ();
   QPointF *get_nodes ();
   double get_width () const;

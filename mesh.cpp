@@ -10,7 +10,7 @@ mesh::mesh ()
   values_ = 0;
 }
 
-mesh::mesh (double width, double hight, double cut_hight, double cut_width, int width_nodes_count, int hight_nodes_count, QPointF init_point)
+void mesh::set_data_mesh (double width, double hight, double cut_hight, double cut_width, int width_nodes_count, int hight_nodes_count, QPointF init_point)
 {
   width_ = width;
   hight_ = hight;
@@ -35,6 +35,37 @@ mesh::~mesh ()
   {
       delete [] values_;
   }
+}
+
+int mesh::parse_arguments_cmd_line (const int argc, char* argv[])
+{
+    // read [a, b] * [c, d] m, n,  total_thread -> 7 arguments
+    if (argc < 8)
+    {
+        printf("A few arguments!\nUsing:\n<a> <b> <c> <d> <count_points_vertical> <count_points_horizontal> <thread_count>\n");
+        return -2;
+    }
+    double a, b, c, d;
+    int m, n;
+    int threads;
+    if (sscanf (argv[1],"%lf", &a) != 1 ||
+        sscanf (argv[2],"%lf", &b) != 1 ||
+        sscanf (argv[3],"%lf", &c) != 1 ||
+        sscanf (argv[4],"%lf", &d) != 1 ||
+        sscanf (argv[5],"%d", &m) != 1 ||
+        sscanf (argv[6],"%d", &n) != 1 ||
+        sscanf (argv[7],"%d", &threads) != 1)
+    {
+        printf("Cannot read arguments from comand line\n");
+        return -1;
+    }
+    width_ = b - a;
+    hight_ = d - c;
+    width_nodes_count_ = n;
+    hight_nodes_count_ = m;
+    initial_point_ = QPointF(a, c);
+
+    return 0;
 }
 
 int mesh::configurate_nodes ()
@@ -115,7 +146,7 @@ void mesh::set_nodes_values ()
   const double step_value_y = hight_ / hight_nodes_count_;
 
   // set rectangular upper part
-  for (int i = 0; i <= boundary_row_; i++)
+  for (int i = 0; i <= 2 * boundary_row_ - 1; i++)
     {
       for (int j = 0; j < width_nodes_count_; j++)
         {

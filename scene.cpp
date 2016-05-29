@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <math.h>
+#include "stdio.h"
 
 #include "mesh.h"
 
@@ -7,9 +8,10 @@
 
 const static float pi=3.141593, k=pi/180;
 
-GLfloat VertexArray[12][3];
-GLfloat ColorArray[12][3];
-GLubyte IndexArray[20][3];
+// 2 * 3
+GLfloat VertexArray[15][3];
+GLfloat ColorArray[15][3];
+GLubyte IndexArray[16][3];
 
 Scene3D::Scene3D (QWidget* parent) : QGLWidget (parent)
 {
@@ -17,12 +19,20 @@ Scene3D::Scene3D (QWidget* parent) : QGLWidget (parent)
    z_translate_ = 0; zoom_scalar = 1;
 }
 
+int Scene3D::set_mesh (mesh *init_painted_mesh)
+{
+    if (!init_painted_mesh)
+        return -1;
+    area_mesh_ = init_painted_mesh;
+    return 0;
+}
+
 void Scene3D::initializeGL ()
 {
    qglClearColor (Qt::white); // background color
    glEnable (GL_DEPTH_TEST); //
    glShadeModel (GL_FLAT);
-   glEnable (GL_CULL_FACE); // set config for special paint
+   glEnable (GL_FRONT_FACE); // set config for special paint
 
    getVertexArray ();
    getColorArray ();
@@ -217,7 +227,9 @@ void Scene3D::drawAxis ()
 
 static double function (const double x, const double y)
 {
-  return x + y;
+    (void)x;
+    (void)y;
+  return 0.2;
 }
 
 void Scene3D::getVertexArray ()
@@ -225,23 +237,27 @@ void Scene3D::getVertexArray ()
   double a = -1;
   double b = 1;
   double c = -1;
-  double d = -1;
-  int n = 5;
-  int m = 4;
-  double eps_ab = (b - a) / m;
-  double eps_cd = (d - c) / n;
+  double d = 1;
+  int n = 3;
+  int m = 2;
+  double eps_ab = (b - a) / (2 * m - 2);
+  double eps_cd = (d - c) / (2 * n - 2);
+  int len_m = 2 * m - 1;
+  int len_n = 2 * n - 1;
 
-  for (int i = 0; i < m; i++)
+  for (int i = 0; i < len_m; i++)
     {
-      for (int j = 0; j < n; j++)
+      for (int j = 0; j < len_n; j++)
         {
-          VertexArray[i * n + j][0] = i * eps_ab;
-          VertexArray[i * n + j][1] = j * eps_cd;
-          VertexArray[i * n + j][2] = function (i * eps_ab, j * eps_cd);
+          VertexArray[i * len_n + j][0] = 1 - i * eps_ab;
+          VertexArray[i * len_n + j][1] = j * eps_cd;
+          VertexArray[i * len_n + j][2] = function (i * eps_ab, j * eps_cd);
+//          printf("Vert[%d] = %f %f %f\n", VertexArray[i * ])
         }
     }
 
 }
+
 /*
 void Scene3D::getVertexArray ()
 {
@@ -301,16 +317,37 @@ void Scene3D::getVertexArray ()
 */
 void Scene3D::getColorArray ()
 {
-   for (int i=0; i<12; i++)
+   for (int i=0; i<15; i++)
    {
-      ColorArray[i][0]=0.1f*(qrand()%11);
-      ColorArray[i][1]=0.1f*(qrand()%11);
-      ColorArray[i][2]=0.1f*(qrand()%11);
+      ColorArray[i][0]=0.1f*(qrand()%15);
+      ColorArray[i][1]=0.1f*(qrand()%15);
+      ColorArray[i][2]=0.1f*(qrand()%15);
    }
 }
 
 void Scene3D::getIndexArray()
 {
+   int m = 2;
+   int n = 3;
+   int rect_on_m = 2 * m - 2;
+   int rect_on_n = 2 * n - 2;
+
+   for (int i = 0; i < rect_on_m; i++)
+   {
+     for (int j = 0; j < rect_on_n; j++)
+     {
+
+            IndexArray[i * rect_on_n + j][0] = i * rect_on_n + j;
+            IndexArray[i * rect_on_n + j][1] = i * rect_on_n + (j + 1);
+            IndexArray[i * rect_on_n + j][2] = (i + 1) * rect_on_n + j;
+            j++;
+            IndexArray[i * rect_on_n + j][0] = i * rect_on_n + j;
+            IndexArray[i * rect_on_n + j][1] = (i + 1) * rect_on_n + j;
+            IndexArray[i * rect_on_n + j][2] = (i + 1) * rect_on_n + (j - 1);
+            j--;
+     }
+   }
+/*
    IndexArray[0][0]=0;
    IndexArray[0][1]=6;
    IndexArray[0][2]=1;
@@ -378,23 +415,14 @@ void Scene3D::getIndexArray()
    IndexArray[16][0]=8;
    IndexArray[16][1]=11;
    IndexArray[16][2]=7;
+   */
 
-   IndexArray[17][0]=9;
-   IndexArray[17][1]=11;
-   IndexArray[17][2]=8;
-
-   IndexArray[18][0]=10;
-   IndexArray[18][1]=11;
-   IndexArray[18][2]=9;
-
-   IndexArray[19][0]=6;
-   IndexArray[19][1]=11;
-   IndexArray[19][2]=10;
 }
 
 void Scene3D::drawFigure ()
 {
    glVertexPointer(3, GL_FLOAT, 0, VertexArray);
-   glColorPointer(3, GL_FLOAT, 0, ColorArray);
-   glDrawElements(GL_TRIANGLES, 60, GL_UNSIGNED_BYTE, IndexArray);
+   glColorPointer(3, GL_FLOAT , 0, ColorArray);
+//   qglColor(Qt::green);
+   glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, IndexArray);
 }

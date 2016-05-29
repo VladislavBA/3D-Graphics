@@ -13,7 +13,7 @@ void msr_preconditional (const double *msr_matrix, const int *indexes, const int
                          const double *u, double *b,                                 //< vector and prec_vector
                          const int my_rank, const int total_thread);                   //< multithread
 
-double inner_product (const double *x, const double *y, const int n, double *sum,                //< scalar product two vectors
+double inner_product (const double *x, const double *y, const int n,                //< scalar product two vectors
                       const int my_rank, const int process_number);                  //< multithread
 
 void linear_combination (double *y, const double *z, const double scalar,
@@ -23,7 +23,7 @@ void msr_residual (const double *msr_matrix, const int *indexes, const int n,
                    const double *x, const double *b, double *r,
                    const int my_rank, const int total_thread);
 
-double compute_vector_inf_norm (const double *vector, const int n, double *max, const int my_rank, const int total_thread);
+double compute_vector_inf_norm (const double *vector, const int n, const int my_rank, const int total_thread);
 
 void copy (const double *src, double *dst, const int n, const int my_rank, const int total_thread);
 

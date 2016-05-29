@@ -2,6 +2,8 @@
 
 #include "multithread.h"
 
+#include <QPainter>
+
 void fill_in_matrix::pattern_1 (int *index, const int i, const int j)
 {
     index[0] = get_mesh_number (i - 1, j);
@@ -79,7 +81,7 @@ double fill_in_matrix::rhs_pattern_count_6 (const int i, const int j)
   constexpr int triangular_num = 6;
   constexpr int start_triangular = 0;
   double result_sum = 0.;
-  for (int k = start_triangular; i < triangular_num; i++)
+  for (int k = start_triangular; k < triangular_num; k++)
     result_sum += compute_curr_triangular (k, i, j);
 
   return result_sum;
@@ -90,7 +92,7 @@ double fill_in_matrix::rhs_pattern_count_6_special(const int i, const int j)
   constexpr int triangular_num = 5;
   double result_sum = 0.;
   constexpr int start_triangular = 3;
-  for (int k = start_triangular; i < start_triangular + triangular_num; i++)
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
     result_sum += compute_curr_triangular (k % 6, i, j);
 
   return result_sum;
@@ -101,7 +103,7 @@ double fill_in_matrix::rhs_pattern_count_4_up(const int i, const int j)
   constexpr int triangular_num = 3;
   double result_sum = 0.;
   constexpr int start_triangular = 2;
-  for (int k = start_triangular; i < start_triangular + triangular_num; i++)
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
     result_sum += compute_curr_triangular (k, i, j);
 
   return result_sum;
@@ -112,7 +114,7 @@ double fill_in_matrix::rhs_pattern_count_4_left(const int i, const int j)
   constexpr int triangular_num = 3;
   double result_sum = 0.;
   constexpr int start_triangular = 0;
-  for (int k = start_triangular; i < start_triangular + triangular_num; i++)
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
     result_sum += compute_curr_triangular (k, i, j);
 
   return result_sum;
@@ -122,11 +124,117 @@ double fill_in_matrix::rhs_pattern_count_4_down(const int i, const int j)
 {
   constexpr int triangular_num = 3;
   double result_sum = 0.;
-  constexpr int start_triangular = 0;
-  for (int k = start_triangular; i < start_triangular + triangular_num; i++)
-    result_sum += compute_curr_triangular (k, i, j);
+  constexpr int start_triangular = 5;
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
+    result_sum += compute_curr_triangular (k % 6, i, j);
 
   return result_sum;
+}
+
+double fill_in_matrix::rhs_pattern_count_4_right (const int i, const int j)
+{
+    constexpr int triangular_num = 3;
+    double result_sum = 0.;
+    constexpr int start_triangular = 3;
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
+        result_sum += compute_curr_triangular (k, i, j);
+
+    return result_sum;
+}
+
+double fill_in_matrix::rhs_pattern_count_2_left (const int i, const int j)
+{
+    constexpr int triangular_num = 1;
+    double result_sum = 0.;
+    constexpr int start_triangular = 2;
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
+        result_sum += compute_curr_triangular (k, i, j);
+
+    return result_sum;
+}
+
+double fill_in_matrix::rhs_pattern_count_2_right(const int i, const int j)
+{
+    constexpr int triangular_num = 1;
+    double result_sum = 0.;
+    constexpr int start_triangular = 5;
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
+        result_sum += compute_curr_triangular (k, i, j);
+
+    return result_sum;
+}
+
+double fill_in_matrix::rhs_pattern_count_3_left(const int i, const int j)
+{
+    constexpr int triangular_num = 2;
+    double result_sum = 0.;
+    constexpr int start_triangular = 0;
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
+        result_sum += compute_curr_triangular (k, i, j);
+
+    return result_sum;
+}
+
+double fill_in_matrix::rhs_pattern_count_3_right(const int i, const int j)
+{
+    constexpr int triangular_num = 2;
+    double result_sum = 0.;
+    constexpr int start_triangular = 3;
+  for (int k = start_triangular; k < start_triangular + triangular_num; k++)
+        result_sum += compute_curr_triangular (k, i, j);
+
+  return result_sum;
+}
+
+double fill_in_matrix::compute_curr_triangular(const int num_triangular, const int i, const int j)
+{
+    constexpr double coef_0 = 1./ 32;
+    constexpr double coef_1 = 5./ 96;
+    constexpr double coef_2 = 1./ 192;
+    constexpr double coef_3 = 1./ 48;
+    constexpr double coef_4 = 1./ 192;
+    constexpr double coef_5 = 5./ 96;
+
+    switch (num_triangular)
+    {
+        case 0:
+            return coef_0 * function (nodes (i, j)) + coef_1 * function (nodes (i - 1, j)) +
+                   coef_2 * function (nodes (i - 2, j)) + coef_3 * function (nodes (i - 2, j + 1)) +
+                   coef_4 * function (nodes (i - 2, j + 2)) + coef_5 * function (nodes (i - 1, j + 1));
+        case 1:
+            return coef_0 * function (nodes (i, j)) + coef_1 * function (nodes (i, j + 1)) +
+                   coef_2 * function (nodes (i, j + 2)) + coef_3 * function (nodes (i - 1, j + 2)) +
+                   coef_4 * function (nodes (i - 2, j + 2)) + coef_5 * function (nodes (i - 1, j + 1));
+        case 2:
+            return coef_0 * function (nodes (i, j)) + coef_1 * function (nodes (i + 1, j)) +
+                   coef_2 * function (nodes (i + 2, j)) + coef_3 * function (nodes (i + 1, j + 1)) +
+                   coef_4 * function (nodes (i, j + 2)) + coef_5 * function (nodes (i, j + 1));
+        case 3:
+            return coef_0 * function (nodes (i, j)) + coef_1 * function (nodes (i + 1, j)) +
+                   coef_2 * function (nodes (i + 2, j)) + coef_3 * function (nodes (i + 2, j - 1)) +
+                   coef_4 * function (nodes (i + 2, j - 2)) + coef_5 * function (nodes (i + 1, j - 1));
+        case 4:
+            return coef_0 * function (nodes (i, j)) + coef_1 * function (nodes (i, j - 1)) +
+                   coef_2 * function (nodes (i, j - 2)) + coef_3 * function (nodes (i + 1, j - 2)) +
+                   coef_4 * function (nodes (i + 2, j - 2)) + coef_5 * function (nodes (i + 1, j - 1));
+        case 5:
+            return coef_0 * function (nodes (i, j)) + coef_1 * function (nodes (i, j - 1)) +
+                   coef_2 * function (nodes (i, j - 2)) + coef_3 * function (nodes (i - 1, j - 1)) +
+                   coef_4 * function (nodes (i - 2, j)) + coef_5 * function (nodes (i - 1, j));
+
+    }
+    return 0;
+}
+
+QPointF fill_in_matrix::nodes (const int i, const int j)
+{
+  const int global_num = get_mesh_number(i, j);
+  return nodes_[global_num];
+}
+
+double fill_in_matrix::function (const QPointF &point)
+{
+    return (*function_) (point.x(), point.y());
 }
 
 fill_in_matrix::fill_in_matrix (const int cut_row, const int cut_col, const int m, const int n, const double jacobian)
@@ -187,7 +295,7 @@ int fill_in_matrix::get_nozero_elements (const int my_rank, const int total_thre
             nz += get_nz_elements_current_node (i, j);
         }
     }
-    reduce_sum (&nz, 1, total_thread);
+    reduce_sum (nz, total_thread);
     return nz;
 }
 
@@ -219,10 +327,9 @@ int fill_in_matrix::fill_indexes (int *indexes)
 
 void fill_in_matrix::fillin_msr_matrix (double *msr_matrix, const int *indexes, const int my_rank, const int total_thread)
 {
-  const int n_ = n_ * m_;
-  int i1 = my_rank * n_;
+  int i1 = my_rank * N_;
   i1 /= total_thread;
-  int i2 = (my_rank + 1) * n_;
+  int i2 = (my_rank + 1) * N_;
   i2 = i2 / total_thread - 1;
   const double I0 = (1. / 2) * J_;
   const double I1 = (1. / 12) * J_;
@@ -238,7 +345,7 @@ void fill_in_matrix::fillin_msr_matrix (double *msr_matrix, const int *indexes, 
     {
       msr_matrix[begin + j] = I1;
     }
-    }
+  }
 }
 
 nodes_type fill_in_matrix::get_node_type(const int i, const int j)
@@ -331,6 +438,7 @@ double fill_in_matrix::rhs_element (const int global_num)
     case UNDEFINED:
       return 0;
     }
+  return 0;
 }
 
 int fill_in_matrix::get_mesh_number (const int pos_x, const int pos_y)

@@ -9,12 +9,12 @@
 #include "multithread.h"
 
 static double get_residual (const double *msr_matrix, const int *indexes, const int n,
-                            const double *x, const double *rhs, double *r, double *max,
+                            const double *x, const double *rhs, double *r,
                             const int my_rank, const int total_thread)
 {
   msr_residual (msr_matrix, indexes, n, x, rhs, r, my_rank, total_thread);
 
-  return compute_vector_inf_norm (r, n, max, my_rank, total_thread);
+  return compute_vector_inf_norm (r, n, my_rank, total_thread);
 }
 
 int minimal_residual_solver (const double *msr_matrix, const int *indexes, const int n,
@@ -25,7 +25,6 @@ int minimal_residual_solver (const double *msr_matrix, const int *indexes, const
   double *v = r + n;     // additional vector v = Au
   // r = b - Ax
   double *u = v + n;     // precond vector u = M^(-1)r
-  double *max = u + n;   // additional vector for compute
   int iter = 0;          // iteration
   double c1 = 0, c2 = 0, tau = 0;  // c1 = (Au, r)
                                    // c2 = (Au, Au)
@@ -41,10 +40,10 @@ int minimal_residual_solver (const double *msr_matrix, const int *indexes, const
       msr_multiply_matrix (msr_matrix, indexes, n, u, v, my_rank, total_thread);
 
       // c1 = (v, r)
-      c1 = inner_product (v, r, n, max, my_rank, total_thread);
+      c1 = inner_product (v, r, n, my_rank, total_thread);
 
       // c2 = (v, v)
-      c2 = inner_product (v, v, n, max, my_rank, total_thread);
+      c2 = inner_product (v, v, n, my_rank, total_thread);
 
       if (c1 < eps * eps || c2 < eps * eps)
         break;
@@ -58,7 +57,7 @@ int minimal_residual_solver (const double *msr_matrix, const int *indexes, const
       // r += -tau * v
       linear_combination (r, v, -tau, n, my_rank, total_thread);
 
-      double residual = compute_vector_inf_norm (r, n, max, my_rank, total_thread);
+      double residual = compute_vector_inf_norm (r, n, my_rank, total_thread);
       if (my_rank == 0)
         {
           printf ("It = %d          Residual = %2.8e\n", iter, residual);
@@ -110,7 +109,6 @@ void *msr_solver (void* args)
   int *indexes = m_args->get_indexes ();        //< MSR IND vector
   const int n = m_args->get_size ();            //< size matrix
   const int width = m_args->get_width ();       //< widht of band matrix
-  double *max = r + 3 * n;
   double residual = 0;                          // residual
   double full_time = 0;
 
@@ -149,7 +147,7 @@ void *msr_solver (void* args)
       if (iter < 0)
         {
           glob_iter += maxit;
-          residual = get_residual (msr_matrix, indexes, n, x, rhs, r, max, my_rank, total_thread);
+          residual = get_residual (msr_matrix, indexes, n, x, rhs, r, my_rank, total_thread);
           if (my_rank == 0)
             printf("Failure:        iters = %d         residual = %4.8e\n", glob_iter, residual);
         }
@@ -160,7 +158,7 @@ void *msr_solver (void* args)
   full_time = get_full_time () - full_time;
   m_args->set_thread_time(get_time () - m_args->get_thread_time ());
 
-  residual = get_residual (msr_matrix, indexes, n, x, rhs, r, max, my_rank, total_thread);
+  residual = get_residual (msr_matrix, indexes, n, x, rhs, r, my_rank, total_thread);
 
   if (my_rank == 0)
     {

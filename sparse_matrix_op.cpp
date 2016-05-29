@@ -51,7 +51,7 @@ void msr_multiply_matrix (const double *msr_matrix, const int* indexes, const in
   synchronize (total_thread);
 }
 
-double inner_product (const double *x, const double *y, const int n, double *sum,
+double inner_product (const double *x, const double *y, const int n,
                       const int my_rank, const int total_thread)
 {
   int i1 = my_rank * n;
@@ -64,8 +64,7 @@ double inner_product (const double *x, const double *y, const int n, double *sum
   for (int i = i1; i <= i2; i++)
     sum_thread += x[i] * y[i];
 
-  sum[my_rank] = sum_thread;
-  return reduce_sum (sum, my_rank, total_thread);
+  return reduce_sum (sum_thread, total_thread);
 }
 // y = y + scalar * z
 void linear_combination (double *y, const double *z, const double scalar,
@@ -100,7 +99,7 @@ void msr_residual (const double *msr_matrix, const int *indexes, const int n,
   synchronize (total_thread);
 }
 
-double compute_vector_inf_norm (const double *vector, const int n, double *max, const int my_rank, const int total_thread)
+double compute_vector_inf_norm (const double *vector, const int n, const int my_rank, const int total_thread)
 {
   int i1 = my_rank * n;
   i1 /= total_thread;
@@ -115,8 +114,7 @@ double compute_vector_inf_norm (const double *vector, const int n, double *max, 
           max_thread = fabs (vector[i]);
         }
     }
-  max[my_rank] = max_thread;
-  return reduce_max_sum (max, my_rank, total_thread);
+  return reduce_max (max_thread, total_thread);
 }
 
 void copy (const double *src, double *dst, const int n, const int my_rank, const int total_thread)

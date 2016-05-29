@@ -1,6 +1,8 @@
 #ifndef FILL_IN_MATRIX_H
 #define FILL_IN_MATRIX_H
 
+class QPointF;
+
 enum nodes_type
 {
   UNDEFINED,
@@ -27,6 +29,7 @@ private:
     int cut_col_;
     double J_;
     double (*function_)(double, double);
+    QPointF *nodes_;
 
     void pattern_1 (int* index, const int i, const int j);
     void pattern_2 (int* index, const int i, const int j);
@@ -44,6 +47,10 @@ private:
     double rhs_pattern_count_3_left (const int i, const int j);
     double rhs_pattern_count_3_right (const int i, const int j);
 
+    double compute_curr_triangular (const int num_triangular, const int i, const int j);
+    QPointF nodes (const int i, const int j);
+    double function (const QPointF &point);
+
 public:
     fill_in_matrix (const int cut_row, const int cut_col, const int m, const int n, const double jacobian);
     ~fill_in_matrix ();
@@ -58,6 +65,7 @@ public:
     double rhs_element (const int global_num);
     int get_mesh_number (const int pos_x, const int pos_y);
     int get_coord_mesh (const int global_pos, int &pos_x, int &pos_y);
+
 };
 
 #endif // FILL_IN_MATRIX_H

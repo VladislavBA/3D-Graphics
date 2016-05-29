@@ -3,6 +3,8 @@
 
 #include <QGLWidget>
 
+class mesh;
+
 class Scene3D : public QGLWidget
 {
 private:
@@ -13,6 +15,8 @@ private:
   GLfloat zoom_scalar;
 
   QPoint mouse_ptr_pos;
+
+  mesh *area_mesh_;
 
   void scale_plus();
   void scale_minus();
@@ -43,5 +47,6 @@ protected:
 
 public:
   Scene3D(QWidget* parent = 0);
+  int set_mesh (mesh *init_painted_mesh);
 };
 #endif
