@@ -14,6 +14,17 @@ private:
   GLfloat z_translate_;
   GLfloat zoom_scalar;
 
+  int m_;
+  int n_;
+
+  GLdouble *nodes_mesh;
+  GLuint *index_nodes_mesh;
+  GLdouble *colors;
+
+  int allnodes;
+  int allareas;
+  int alltriangles;
+
   QPoint mouse_ptr_pos;
 
   mesh *area_mesh_;
@@ -34,6 +45,8 @@ private:
   void getColorArray();
   void getIndexArray();
   void drawFigure();
+
+
 
 protected:
   void initializeGL();

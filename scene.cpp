@@ -6,6 +6,8 @@
 
 #include "scene.h"
 
+#include "debug_function.h"
+
 const static float pi=3.141593, k=pi/180;
 
 // 2 * 3
@@ -17,6 +19,18 @@ Scene3D::Scene3D (QWidget* parent) : QGLWidget (parent)
 {
    x_rotate_ = -95; y_rotate_ = 5; z_rotate_ = -120;
    z_translate_ = 0; zoom_scalar = 1;
+
+   m_ = 2;
+   n_ = 3;
+   allnodes = (2 * n_ - 1) * (2 * m_ - 1);
+   nodes_mesh = new GLdouble[3 * allnodes];
+   allareas = (2 * n_ - 2) * (2 * m_ - 2);
+   index_nodes_mesh = new GLuint[3 * allareas];
+
+   alltriangles = (2 * m_ - 2) * (2 * n_ - 2) * 2 * 3;
+
+   colors = new GLdouble[3 * allnodes];
+
 }
 
 int Scene3D::set_mesh (mesh *init_painted_mesh)
@@ -227,9 +241,9 @@ void Scene3D::drawAxis ()
 
 static double function (const double x, const double y)
 {
-    (void)x;
-    (void)y;
-  return 0.2;
+ //   (void)x;
+   (void)y;
+  return x;
 }
 
 void Scene3D::getVertexArray ()
@@ -240,88 +254,29 @@ void Scene3D::getVertexArray ()
   double d = 1;
   int n = 3;
   int m = 2;
-  double eps_ab = (b - a) / (2 * m - 2);
-  double eps_cd = (d - c) / (2 * n - 2);
+  double eps_ab = (b - a) / (2 * n - 2);
+  double eps_cd = (d - c) / (2 * m - 2);
   int len_m = 2 * m - 1;
-  int len_n = 2 * n - 1;
+  int len_n = 3 * (2 * n - 1);
 
   for (int i = 0; i < len_m; i++)
     {
-      for (int j = 0; j < len_n; j++)
+      for (int j = 0; j < len_n; j+=3)
         {
-          VertexArray[i * len_n + j][0] = 1 - i * eps_ab;
-          VertexArray[i * len_n + j][1] = j * eps_cd;
-          VertexArray[i * len_n + j][2] = function (i * eps_ab, j * eps_cd);
-//          printf("Vert[%d] = %f %f %f\n", VertexArray[i * ])
+          nodes_mesh[i * len_n + j] = -1 + j / 3 * eps_ab;
+          nodes_mesh[i * len_n + j + 1] = 1 - i * eps_cd;
+          nodes_mesh[i * len_n + j + 2] = function (-1 + j / 3 * eps_ab,1 - i * eps_cd);
         }
     }
-
 }
 
-/*
-void Scene3D::getVertexArray ()
-{
-   GLfloat R=0.75;
-
-   GLfloat a=4*R/sqrt(10+2*sqrt(5));
-   GLfloat alpha=acos((1-a*a/2/R/R));
-
-   VertexArray[0][0]=0;
-   VertexArray[0][1]=0;
-   VertexArray[0][2]=R;
-
-   VertexArray[1][0]=R*sin(alpha)*sin(0);
-   VertexArray[1][1]=R*sin(alpha)*cos(0);
-   VertexArray[1][2]=R*cos(alpha);
-
-   VertexArray[2][0]=R*sin(alpha)*sin(72*k);
-   VertexArray[2][1]=R*sin(alpha)*cos(72*k);
-   VertexArray[2][2]=R*cos(alpha);
-
-   VertexArray[3][0]=R*sin(alpha)*sin(2*72*k);
-   VertexArray[3][1]=R*sin(alpha)*cos(2*72*k);
-   VertexArray[3][2]=R*cos(alpha);
-
-   VertexArray[4][0]=R*sin(alpha)*sin(3*72*k);
-   VertexArray[4][1]=R*sin(alpha)*cos(3*72*k);
-   VertexArray[4][2]=R*cos(alpha);
-
-   VertexArray[5][0]=R*sin(alpha)*sin(4*72*k);
-   VertexArray[5][1]=R*sin(alpha)*cos(4*72*k);
-   VertexArray[5][2]=R*cos(alpha);
-
-   VertexArray[6][0]=R*sin(pi-alpha)*sin(-36*k);
-   VertexArray[6][1]=R*sin(pi-alpha)*cos(-36*k);
-   VertexArray[6][2]=R*cos(pi-alpha);
-
-   VertexArray[7][0]=R*sin(pi-alpha)*sin(36*k);
-   VertexArray[7][1]=R*sin(pi-alpha)*cos(36*k);
-   VertexArray[7][2]=R*cos(pi-alpha);
-
-   VertexArray[8][0]=R*sin(pi-alpha)*sin((36+72)*k);
-   VertexArray[8][1]=R*sin(pi-alpha)*cos((36+72)*k);
-   VertexArray[8][2]=R*cos(pi-alpha);
-
-   VertexArray[9][0]=R*sin(pi-alpha)*sin((36+2*72)*k);
-   VertexArray[9][1]=R*sin(pi-alpha)*cos((36+2*72)*k);
-   VertexArray[9][2]=R*cos(pi-alpha);
-
-   VertexArray[10][0]=R*sin(pi-alpha)*sin((36+3*72)*k);
-   VertexArray[10][1]=R*sin(pi-alpha)*cos((36+3*72)*k);
-   VertexArray[10][2]=R*cos(pi-alpha);
-
-   VertexArray[11][0]=0;
-   VertexArray[11][1]=0;
-   VertexArray[11][2]=-R;
-}
-*/
 void Scene3D::getColorArray ()
 {
-   for (int i=0; i<15; i++)
+   for (int i=0; i<allnodes; i += 3)
    {
-      ColorArray[i][0]=0.1f*(qrand()%15);
-      ColorArray[i][1]=0.1f*(qrand()%15);
-      ColorArray[i][2]=0.1f*(qrand()%15);
+      colors[i]=0.1f*(qrand()%allnodes);
+      colors[i + 1]=0.1f*(qrand()%allnodes);
+      colors[i + 2]=0.1f*(qrand()%allnodes);
    }
 }
 
@@ -329,100 +284,30 @@ void Scene3D::getIndexArray()
 {
    int m = 2;
    int n = 3;
-   int rect_on_m = 2 * m - 2;
-   int rect_on_n = 2 * n - 2;
+   const int nodes_on_my = 2 * m - 2;
+   const int nodes_on_nx = 2 * n - 2;
+   const int row_triangles = 3 * 2 * (2 * n - 2);
 
-   for (int i = 0; i < rect_on_m; i++)
+   for (int i = 0; i < nodes_on_my; i++)
    {
-     for (int j = 0; j < rect_on_n; j++)
+     for (int j = 0, s = 0; j < row_triangles; j += 6, s++)
      {
+            index_nodes_mesh[i * row_triangles + j] = i * (nodes_on_nx + 1) + s;
+            index_nodes_mesh[i * row_triangles + j + 1] = i * (nodes_on_nx + 1) + (s + 1);
+            index_nodes_mesh[i * row_triangles + j + 2] = (i + 1) * (nodes_on_nx + 1) + s;
 
-            IndexArray[i * rect_on_n + j][0] = i * rect_on_n + j;
-            IndexArray[i * rect_on_n + j][1] = i * rect_on_n + (j + 1);
-            IndexArray[i * rect_on_n + j][2] = (i + 1) * rect_on_n + j;
-            j++;
-            IndexArray[i * rect_on_n + j][0] = i * rect_on_n + j;
-            IndexArray[i * rect_on_n + j][1] = (i + 1) * rect_on_n + j;
-            IndexArray[i * rect_on_n + j][2] = (i + 1) * rect_on_n + (j - 1);
-            j--;
+            index_nodes_mesh[i * row_triangles + j + 3] = i * (nodes_on_nx + 1) + s + 1;
+            index_nodes_mesh[i * row_triangles + j + 4] = (i + 1) * (nodes_on_nx + 1) + s + 1;
+            index_nodes_mesh[i * row_triangles + j + 5] = (i + 1) * (nodes_on_nx + 1) + s;
      }
    }
-/*
-   IndexArray[0][0]=0;
-   IndexArray[0][1]=6;
-   IndexArray[0][2]=1;
-
-   IndexArray[1][0]=1;
-   IndexArray[1][1]=6;
-   IndexArray[1][2]=7;
-
-   IndexArray[2][0]=1;
-   IndexArray[2][1]=7;
-   IndexArray[2][2]=2;
-
-   IndexArray[3][0]=2;
-   IndexArray[3][1]=7;
-   IndexArray[3][2]=8;
-
-   IndexArray[4][0]=2;
-   IndexArray[4][1]=8;
-   IndexArray[4][2]=3;
-
-   IndexArray[5][0]=3;
-   IndexArray[5][1]=8;
-   IndexArray[5][2]=9;
-
-   IndexArray[6][0]=3;
-   IndexArray[6][1]=1;
-   IndexArray[6][2]=2;
-
-   IndexArray[7][0]=7;
-   IndexArray[7][1]=2;
-   IndexArray[7][2]=8;
-
-   IndexArray[8][0]=8;
-   IndexArray[8][1]=2;
-   IndexArray[8][2]=3;
-
-   IndexArray[9][0]=8;
-   IndexArray[9][1]=3;
-   IndexArray[9][2]=9;
-
-   IndexArray[10][0]=9;
-   IndexArray[10][1]=3;
-   IndexArray[10][2]=4;
-
-   IndexArray[11][0]=9;
-   IndexArray[11][1]=4;
-   IndexArray[11][2]=10;
-
-   IndexArray[12][0]=10;
-   IndexArray[12][1]=4;
-   IndexArray[12][2]=5;
-
-   IndexArray[13][0]=10;
-   IndexArray[13][1]=5;
-   IndexArray[13][2]=6;
-
-   IndexArray[14][0]=6;
-   IndexArray[14][1]=5;
-   IndexArray[14][2]=1;
-
-   IndexArray[15][0]=7;
-   IndexArray[15][1]=11;
-   IndexArray[15][2]=6;
-
-   IndexArray[16][0]=8;
-   IndexArray[16][1]=11;
-   IndexArray[16][2]=7;
-   */
-
 }
 
 void Scene3D::drawFigure ()
 {
-   glVertexPointer(3, GL_FLOAT, 0, VertexArray);
-   glColorPointer(3, GL_FLOAT , 0, ColorArray);
-//   qglColor(Qt::green);
-   glDrawElements(GL_TRIANGLES, 48, GL_UNSIGNED_BYTE, IndexArray);
+   glVertexPointer(3, GL_DOUBLE, 0, nodes_mesh);
+   glColorPointer(3, GL_DOUBLE , 0, colors);
+//   qglColor(current_color);
+   glDrawElements(GL_TRIANGLES, alltriangles, GL_UNSIGNED_INT, index_nodes_mesh);
+//   glDrawElements(GL_TRIANGLE_STRIP, alltriangles, GL_UNSIGNED_INT, index_nodes_mesh);
 }

@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     scene.cpp \
     thread_source.cpp \
     matrix_args.cpp \
-    fill_in_matrix.cpp
+    fill_in_matrix.cpp \
+    solver.cpp
 
 HEADERS  += window.h \
     io.h \
@@ -37,7 +38,9 @@ HEADERS  += window.h \
     scene.h \
     thread_source.h \
     matrix_args.h \
-    fill_in_matrix.h
+    fill_in_matrix.h \
+    solver.h \
+    debug_function.h
 
 OTHER_FILES += \
     Configure.project.txt
