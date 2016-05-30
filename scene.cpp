@@ -8,15 +8,21 @@
 
 #include "debug_function.h"
 
-const static float pi=3.141593, k=pi/180;
-
-// 2 * 3
-GLfloat VertexArray[15][3];
-GLfloat ColorArray[15][3];
-GLubyte IndexArray[16][3];
+static double function (const double x, const double y)
+{
+  return x + y;
+}
 
 Scene3D::Scene3D (QWidget* parent) : QGLWidget (parent)
 {
+   constexpr GLfloat starting_position_x_rotate = -95;
+   constexpr GLfloat starting_position_y_rotate = 5;
+   constexpr GLfloat starting_position_z_rotate = -120;
+   constexpr GLfloat starting_position_z_translate = 0;
+   constexpr GLfloat starting_zoom_scalar = 1;
+   m_settings = {starting_position_x_rotate, starting_position_y_rotate,
+                 starting_position_z_rotate, starting_position_z_translate,
+                 starting_zoom_scalar};
    x_rotate_ = -95; y_rotate_ = 5; z_rotate_ = -120;
    z_translate_ = 0; zoom_scalar = 1;
 
@@ -39,6 +45,31 @@ int Scene3D::set_mesh (mesh *init_painted_mesh)
         return -1;
     area_mesh_ = init_painted_mesh;
     return 0;
+}
+
+int Scene3D::parser (int argc, char *argv)
+{
+  double a, b, c, d, p, q;
+  int m, n, total_thread;
+
+  if (argc < 10)
+    {
+      printf("A few args\n");
+      return -1;
+    }
+  if ((sscanf (argv[1], "%lf", &a) != 1) || (sscanf (argv[2], "%lf", &b) != 1) ||
+      (sscanf (argv[3], "%lf", &c) != 1) || (sscanf (argv[4], "%lf", &d) != 1) ||
+      (sscanf (argv[5], "%lf", &p) != 1) || (sscanf (argv[6], "%lf", &q) != 1) ||
+      (sscanf (argv[7], "%lf", &m) != 1) || (sscanf (argv[8], "%lf", &n) != 1) ||
+      (sscanf (argv[9], "%lf", &total_thread) != 1)
+     )
+    {
+      printf("Cannot read args!\n");
+      return -2;
+    }
+  m_in_data = {a, b, c, d, p, q, m, n, total_thread};
+
+  return 0;
 }
 
 void Scene3D::initializeGL ()
@@ -78,11 +109,11 @@ void Scene3D::paintGL ()
    glMatrixMode (GL_MODELVIEW);
    glLoadIdentity ();
 
-   glScalef(zoom_scalar, zoom_scalar, zoom_scalar);
-   glTranslatef(0.0f, z_translate_, 0.0f);
-   glRotatef(x_rotate_, 1.0f, 0.0f, 0.0f);
-   glRotatef(y_rotate_, 0.0f, 1.0f, 0.0f);
-   glRotatef(z_rotate_, 0.0f, 0.0f, 1.0f);
+   glScalef(m_settings.zoom_scalar, m_settings.zoom_scalar, m_settings.zoom_scalar);
+   glTranslatef(0.0f, m_settings.z_translate_, 0.0f);
+   glRotatef(m_settings.x_rotate_, 1.0f, 0.0f, 0.0f);
+   glRotatef(m_settings.y_rotate_, 0.0f, 1.0f, 0.0f);
+   glRotatef(m_settings.z_rotate_, 0.0f, 0.0f, 1.0f);
 
    drawAxis ();
    drawFigure ();
@@ -100,8 +131,8 @@ void Scene3D::mouseReleaseEvent (QMouseEvent* /*pe*/)
 
 void Scene3D::mouseMoveEvent(QMouseEvent* pe)
 {
-   x_rotate_ += 180 / zoom_scalar * (GLfloat)(pe->y ()-mouse_ptr_pos.y ()) / height ();
-   z_rotate_ += 180 / zoom_scalar * (GLfloat)(pe->x ()-mouse_ptr_pos.x ()) / width ();
+   m_settings.x_rotate_ += 180 / m_settings.zoom_scalar * (GLfloat)(pe->y ()-mouse_ptr_pos.y ()) / height ();
+   m_settings.z_rotate_ += 180 / m_settings.zoom_scalar * (GLfloat)(pe->x ()-mouse_ptr_pos.x ()) / width ();
 
    mouse_ptr_pos = pe->pos ();
 
@@ -173,47 +204,54 @@ void Scene3D::keyPressEvent (QKeyEvent* pe)
 
 void Scene3D::scale_plus ()
 {
-   zoom_scalar = zoom_scalar * 1.1;
+   m_settings.zoom_scalar = m_settings.zoom_scalar * 1.1;
 }
 
 void Scene3D::scale_minus ()
 {
-   zoom_scalar = zoom_scalar / 1.1;
+   m_settings.zoom_scalar = m_settings.zoom_scalar / 1.1;
 }
 
 void Scene3D::rotate_up ()
 {
-   x_rotate_ += 1.0;
+   m_settings.x_rotate_ += 1.0;
 }
 
 void Scene3D::rotate_down ()
 {
-   x_rotate_ -= 1.0;
+   m_settings.x_rotate_ -= 1.0;
 }
 
 void Scene3D::rotate_left ()
 {
-   z_rotate_ += 1.0;
+   m_settings.z_rotate_ += 1.0;
 }
 
 void Scene3D::rotate_right ()
 {
-   z_rotate_ -= 1.0;
+   m_settings.z_rotate_ -= 1.0;
 }
 
 void Scene3D::translate_down ()
 {
-   z_translate_ -= 0.05;
+   m_settings.z_translate_ -= 0.05;
 }
 
 void Scene3D::translate_up ()
 {
-   z_translate_ += 0.05;
+   m_settings.z_translate_ += 0.05;
 }
 
 void Scene3D::defaultScene ()
 {
-   x_rotate_ = -95; y_rotate_ = 5; z_rotate_ = -120; z_translate_=0; zoom_scalar=1;
+  constexpr GLfloat starting_position_x_rotate = -95;
+  constexpr GLfloat starting_position_y_rotate = 5;
+  constexpr GLfloat starting_position_z_rotate = -120;
+  constexpr GLfloat starting_position_z_translate = 0;
+  constexpr GLfloat starting_zoom_scalar = 1;
+  m_settings = {starting_position_x_rotate, starting_position_y_rotate,
+                starting_position_z_rotate, starting_position_z_translate,
+                starting_zoom_scalar};
 }
 
 void Scene3D::drawAxis ()
@@ -237,13 +275,6 @@ void Scene3D::drawAxis ()
       glVertex3f ( 0.0f,  0.0f,  1.0f);
       glVertex3f ( 0.0f,  0.0f, -1.0f);
    glEnd();
-}
-
-static double function (const double x, const double y)
-{
- //   (void)x;
-   (void)y;
-  return x;
 }
 
 void Scene3D::getVertexArray ()

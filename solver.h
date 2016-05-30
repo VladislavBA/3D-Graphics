@@ -1,11 +1,13 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
+#include "multithread.h"
+
+class matrix_args;
+
 class solver
 {
-
 private:
-
     double *msr_matrix_;
     int *indexes_;
     double *x_;
@@ -18,6 +20,13 @@ private:
     int work_len_;
     int width_;
     double thread_time_;
+
+    matrix_args *args_;
+    int total_thread = 0;
+    pthread_t tid = 0; // ID process
+
+    matrix_args *args = nullptr;
+
 public:
     solver ();
 
