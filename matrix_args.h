@@ -16,7 +16,6 @@ private:
   int total_thread_;
   double *workspace_;
   int work_len_;
-  int width_;
   double thread_time_;
 
 public:
@@ -25,7 +24,7 @@ public:
 
   void matrix_args_init (double *matrix, int *ind, double *x, double *b, int n,
                          int nz, int my_rank, int total_thread,
-                         double* workspace, int work_len, int width);
+                         double* workspace, int work_len);
 
   int get_my_rank () const;
   int get_total_thread () const;

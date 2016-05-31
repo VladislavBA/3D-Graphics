@@ -12,7 +12,6 @@ matrix_args::matrix_args ()
   total_thread_ = 0;
   workspace_ = nullptr;
   work_len_ = 0;
-  width_ = 0;
   thread_time_ = 0;
 }
 
@@ -28,13 +27,12 @@ matrix_args::~matrix_args ()
   total_thread_ = 0;
   workspace_ = nullptr;
   work_len_ = 0;
-  width_ = 0;
   thread_time_ = 0;
 }
 
 void matrix_args::matrix_args_init (double *matrix, int *ind, double *x, double *b, int n,
                                     int nz, int my_rank, int total_thread,
-                                    double *workspace, int work_len, int width)
+                                    double *workspace, int work_len)
 {
   msr_matrix_ = matrix;
   indexes_ = ind;
@@ -46,7 +44,6 @@ void matrix_args::matrix_args_init (double *matrix, int *ind, double *x, double 
   total_thread_ = total_thread;
   workspace_ = workspace;
   work_len_ = work_len;
-  width_ = width;
 }
 
 int matrix_args::get_my_rank() const

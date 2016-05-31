@@ -6,24 +6,6 @@
 class mesh;
 class fill_in_matrix;
 
-struct input_data
-{
-  // rectangular
-  GLdouble left_down_point_a;
-  GLdouble right_down_point_b;
-  GLdouble left_down_point_c;
-  GLdouble left_up_point_d;
-
-  // cut rectangular
-  GLdouble left_down_cut_p;
-  GLdouble right_up_cut_q;
-
-  size_t num_point_mesh_m;
-  size_t num_point_mesh_n;
-
-  int total_thread;
-};
-
 struct matrix_data
 {
   double *s_msr_matrix;
@@ -53,7 +35,6 @@ private:
 
   scene_data m_settings;
   matrix_data m_matrix;
-  input_data m_in_data;
 
   fill_in_matrix *matrix_filler;
 

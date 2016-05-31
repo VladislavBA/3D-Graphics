@@ -24,11 +24,11 @@ int main(int argc, char** argv)
 
   Scene3D *OpenGL_scene = new Scene3D (main_window);
 
+  solver *solver_for_model = new solver ();
+
   int error_parser = OpenGL_scene->parser (argc, argv);
   if (error_parser < 0)
     return -1;
-
-  solver *solver_for_model = new solver ();
 
   main_window->setWindowTitle ("3D-Graphics");
   main_window->resize (1000, 1000);

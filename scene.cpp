@@ -47,31 +47,6 @@ int Scene3D::set_mesh (mesh *init_painted_mesh)
     return 0;
 }
 
-int Scene3D::parser (int argc, char *argv)
-{
-  double a, b, c, d, p, q;
-  int m, n, total_thread;
-
-  if (argc < 10)
-    {
-      printf("A few args\n");
-      return -1;
-    }
-  if ((sscanf (argv[1], "%lf", &a) != 1) || (sscanf (argv[2], "%lf", &b) != 1) ||
-      (sscanf (argv[3], "%lf", &c) != 1) || (sscanf (argv[4], "%lf", &d) != 1) ||
-      (sscanf (argv[5], "%lf", &p) != 1) || (sscanf (argv[6], "%lf", &q) != 1) ||
-      (sscanf (argv[7], "%lf", &m) != 1) || (sscanf (argv[8], "%lf", &n) != 1) ||
-      (sscanf (argv[9], "%lf", &total_thread) != 1)
-     )
-    {
-      printf("Cannot read args!\n");
-      return -2;
-    }
-  m_in_data = {a, b, c, d, p, q, m, n, total_thread};
-
-  return 0;
-}
-
 void Scene3D::initializeGL ()
 {
    qglClearColor (Qt::white); // background color
